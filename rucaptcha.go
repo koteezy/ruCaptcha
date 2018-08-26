@@ -50,7 +50,7 @@ func (ruCaptcha *RuCaptcha) Default(urlOrBase64 string) (string, error) {
 		{"body", encoded},
 	}
 
-	return ruCaptcha.Await(values)
+	return ruCaptcha.await(values)
 }
 
 // Trying to solve google Recaptcha
@@ -61,7 +61,7 @@ func (ruCaptcha *RuCaptcha) ReCaptcha(pageUrl string, googleSiteKey string) (str
 		{"googlekey", googleSiteKey},
 	}
 
-	return ruCaptcha.Await(names)
+	return ruCaptcha.await(names)
 }
 
 // send image, and get his id.
@@ -107,7 +107,7 @@ func (ruCaptcha *RuCaptcha) getId(parameters []Parameter) error {
 
 // when we already have an Id
 // we just need wait until captcha until it's ready.
-func (ruCaptcha *RuCaptcha) Await(parameters []Parameter) (string, error) {
+func (ruCaptcha *RuCaptcha) await(parameters []Parameter) (string, error) {
 	err := ruCaptcha.getId(parameters)
 
 	if err != nil {
@@ -215,15 +215,9 @@ func (ruCaptcha RuCaptcha) getRequest(url string, parameters []Parameter) (*http
 // to base64 format.
 func (ruCaptcha *RuCaptcha) convertToBase64(url string) (string, error) {
 	// lets make get request
-	//print("-> -> 1")
-	//print("\n")
-
 	client := ruCaptcha.getClient()
 
 	req, reqErr := http.NewRequest("GET", url, nil)
-
-	//print("-> -> 2")
-	//print("\n")
 
 	if reqErr != nil {
 		return "", reqErr
@@ -231,33 +225,16 @@ func (ruCaptcha *RuCaptcha) convertToBase64(url string) (string, error) {
 
 	resp, err := client.Do(req)
 
-	//print("-> -> 3")
-	//print("\n")
-
 	if err != nil {
 		return "", err
 	}
 
 	ruCaptcha.ImageResponse = *resp
 
-	//print("-> -> 4")
-	//print("\n")
-
 	defer resp.Body.Close()
 
 	// Read entire JPG into byte slice.
-	//reader := bufio.NewReader(resp.Body)
 	content, err := ioutil.ReadAll(resp.Body)
-	//
-	//os.Remove("img.jpg")
-	//f, err := os.Create("img.jpg")
-	//
-	//defer f.Close()
-	//
-	//f.Write(content)
-
-	//print("-> -> 5")
-	//print("\n")
 
 	if err != nil {
 		return "", err
@@ -265,9 +242,6 @@ func (ruCaptcha *RuCaptcha) convertToBase64(url string) (string, error) {
 
 	// Encode as base64.
 	encoded := base64.StdEncoding.EncodeToString(content)
-
-	//print("-> -> 4")
-	//print("\n")
 
 	return encoded, nil
 }
