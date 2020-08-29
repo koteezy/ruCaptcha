@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"encoding/base64"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 	"errors"
@@ -252,12 +253,8 @@ func (ruCaptcha *RuCaptcha) SetProxy(proxy string, proxyType string) {
 }
 
 func isUrl(toTest string) bool {
-	_, err := url.ParseRequestURI(toTest)
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
+	reg := regexp.MustCompile(`^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&\/=]*`)
+	return reg.MatchString(toTest)
 }
 
 func (ruCaptcha RuCaptcha) getClient() *http.Client {
